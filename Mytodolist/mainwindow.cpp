@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     editMenu = new QMenu(this);
     helpMenu = new QMenu(this);
     textEdit = new QTextEdit(this);
+    textEdit->setFontPointSize(10);
     textEdit->setPlaceholderText(tr(u8"开始书写、拖动文件或选择"));
     statusbar = new QStatusBar(this);
     status = new QLabel("",this);
@@ -33,6 +34,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     centralWidget()->setLayout(vboxlayout);
     //textEdit 信号和槽
     connect(textEdit,SIGNAL(textChanged()),this,SLOT(slottextchanged()));
+    connect(textEdit,SIGNAL(selectionChanged()),this,SLOT(slotselectionchanged()));
+    connect(textEdit,SIGNAL(cursorPositionChanged()),this,SLOT(slotcursorchanged()));
+
     //填充菜单子节点
     newAct = new QAction(QIcon( "../icon/NewEvent.png" ), tr( u8"新建" ), this );
     newAct->setShortcut(tr("Ctrl+N" ));       					 //快捷键
@@ -85,6 +89,33 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     swStatusAct = new QAction(tr(u8"查看状态栏"),this);
     swStatusAct->setStatusTip(tr(u8"开关底部状态栏"));
     swStatusAct->setIcon(QIcon("../icon/bingo.png"));
+    fontAct = new QAction(tr(u8"字体"),this);
+    fontAct->setStatusTip(tr(u8"设置字体"));
+    fontAct->setEnabled(false);
+    fontAct->setShortcut(tr("Ctrl+D"));
+    leftAct = new QAction(tr(u8"左对齐"));
+    leftAct->setShortcut(tr("Ctrl+L"));
+    centerAct = new QAction(tr(u8"居中对齐"));
+    centerAct->setShortcut(tr(u8"Ctrl+C"));
+    rightAct = new QAction(tr(u8"右对齐"));
+    rightAct->setShortcut(tr(u8"Ctrl+R"));
+    justifyAct = new QAction(tr(u8"两端对齐"));
+    justifyAct->setShortcut(tr(u8"Ctrl+J"));
+    colorAct = new QAction(tr(u8"颜色"));
+    incindAct = new QAction(tr(u8"增加缩进"));
+    incindAct->setShortcut(tr(u8"Ctrl+M"));
+    decindAct = new QAction(tr(u8"减少缩进"));
+    decindAct->setShortcut(tr(u8"Ctrl+Shift+M"));
+    incfsizeAct = new QAction(tr(u8"增大字体"));
+    incfsizeAct->setShortcut(tr(u8"Ctrl+Shift+."));
+    decfsizeAct = new QAction(tr(u8"减小字体"));
+    decfsizeAct->setShortcut(tr(u8"Ctrl+Shift+,"));
+    instableAct = new QAction(tr(u8"插入表格"));
+    instableAct->setStatusTip(tr(u8"创建表格"));
+    insruleAct = new QAction(tr(u8"插入水平线"));
+    insruleAct->setShortcut(tr(u8"Ctrl+Shift+-"));
+    paragraphMenu = new QMenu(tr(u8"段落"));
+    paragraphMenu->setStatusTip(tr(u8"设置段落"));
 
     //信号与槽
     connect(copyAct, SIGNAL(triggered()), this, SLOT(copyAction()));
@@ -96,6 +127,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(exitAct, SIGNAL(triggered()), this, SLOT(exitAction()));
     connect(selectallAct,SIGNAL(triggered()),textEdit,SLOT(selectAll()));
     connect(swStatusAct,SIGNAL(triggered()),this,SLOT(showStatusAction()));
+    connect(fontAct,SIGNAL(triggered()),this,SLOT(fontAction()));
+    connect(leftAct,SIGNAL(triggered()),this,SLOT(leftAction()));
+    connect(centerAct,SIGNAL(triggered()),this,SLOT(centerAction()));
+    connect(rightAct,SIGNAL(triggered()),this,SLOT(rightAction()));
+    connect(justifyAct,SIGNAL(triggered()),this,SLOT(justifyAction()));
+    connect(colorAct,SIGNAL(triggered()),this,SLOT(colorAction()));
+    connect(incindAct,SIGNAL(triggered()),this,SLOT(incindAction()));
+    connect(decindAct,SIGNAL(triggered()),this,SLOT(decindAction()));
+    connect(incfsizeAct,SIGNAL(triggered()),this,SLOT(incfsizeAction()));
+    connect(decfsizeAct,SIGNAL(triggered()),this,SLOT(decfsizeAction()));
+    connect(instableAct,SIGNAL(triggered()),this,SLOT(instableAction()));
+    connect(insruleAct,SIGNAL(triggered()),this,SLOT(insruleAction()));
     //填充菜单
     fileMenu = menuBar()->addMenu(tr( u8"文件" ));
     fileMenu->addAction(newAct);
@@ -119,12 +162,33 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     editMenu->addSeparator();
     editMenu->addAction(selectallAct);
     menuBar()->addSeparator();
+
     viewMenu = menuBar()->addMenu(tr(u8"查看"));
     viewMenu->addAction(swStatusAct);
     menuBar()->addSeparator();
+
+    styleMenu = menuBar()->addMenu(tr(u8"格式"));
+    styleMenu->addAction(fontAct);
+    styleMenu->addAction(colorAct);
+    styleMenu->addMenu(paragraphMenu);
+    paragraphMenu->addAction(leftAct);
+    paragraphMenu->addAction(centerAct);
+    paragraphMenu->addAction(rightAct);
+    paragraphMenu->addAction(justifyAct);
+    paragraphMenu->addSeparator();
+    paragraphMenu->addAction(incindAct);
+    paragraphMenu->addAction(decindAct);
+    paragraphMenu->addSeparator();
+    paragraphMenu->addAction(incfsizeAct);
+    paragraphMenu->addAction(decfsizeAct);
+    styleMenu->addSeparator();
+    styleMenu->addAction(instableAct);
+    styleMenu->addAction(insruleAct);
+    menuBar()->addSeparator();
+
+
     helpMenu = menuBar()->addMenu(tr(u8"帮助" ));
     helpMenu->addAction(aboutQtAct);
-
 
     //toolBar 工具条
     //fileTooBar添加
@@ -143,12 +207,74 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     editToolBar->addAction(redoAct);
     editToolBar->addAction(exitAct);
 
+    styleToolBar = addToolBar(tr(u8"格式"));
+    styleToolBar->addWidget(fontBox = new QFontComboBox());
+    styleToolBar->addWidget(sizeBox = new QComboBox());
+    styleToolBar->addWidget(colorBox = new ColorCombox());
+    styleToolBar->addWidget(boldbutton = new QPushButton());
+    styleToolBar->addWidget(italicbutton = new QPushButton());
 
+    italicbutton->setCheckable(true);
+    italicbutton->setIcon(QIcon("../icon/italic.png"));
+    italicbutton->setToolTip(tr(u8"斜体(Ctrl+I)"));
+    italicbutton->setShortcut(tr(u8"Ctrl+I"));
+    italicbutton->setFlat(true);
+    italicbutton->setCursor(Qt::PointingHandCursor);
+    italicbutton->setFocusPolicy(Qt::NoFocus);
+    boldbutton->setFlat(true);
+    boldbutton->setIcon(QIcon("../icon/bold.png"));
+    boldbutton->setToolTip(tr(u8"加粗(Ctrl+B)"));
+    boldbutton->setShortcut(tr(u8"Ctrl+B"));
+    boldbutton->setCheckable(true);
+    boldbutton->setCursor(Qt::PointingHandCursor);
+    boldbutton->setFocusPolicy(Qt::NoFocus);
+    sizeBox->addItem("6");
+    sizeBox->addItem("7");
+    sizeBox->addItem("8");
+    sizeBox->addItem("9");
+    sizeBox->addItem("10");
+    sizeBox->addItem("11");
+    sizeBox->addItem("12");
+    sizeBox->addItem("14");
+    sizeBox->addItem("16");
+    sizeBox->addItem("18");
+    sizeBox->addItem("20");
+    sizeBox->addItem("22");
+    sizeBox->addItem("24");
+    sizeBox->addItem("26");
+    sizeBox->addItem("28");
+    sizeBox->addItem("36");
+    sizeBox->addItem("48");
+    sizeBox->addItem("72");
+    sizeBox->setCurrentText(QString::number(textEdit->fontPointSize()));
+    fontBox->setEditable(false);
+    fontBox->setCursor(Qt::PointingHandCursor);
+    fontBox->setFocusPolicy(Qt::NoFocus);
+    colorBox->setButtonIcon("../icon/font.png",textEdit->textColor());
+
+    connect(colorBox,SIGNAL(sigColorChanged(QColor)),this,SLOT(slotcolorchanged(const QColor)));
+    connect(sizeBox,SIGNAL(currentTextChanged(QString)),this,SLOT(slotsizechanged(const QString &)));
+    connect(fontBox,SIGNAL(currentFontChanged(QFont)),this,SLOT(slotfontchanged(const QFont &)));
+    connect(boldbutton,SIGNAL(toggled(bool)),this,SLOT(slotboldclicked(const bool&)));
+    connect(italicbutton,SIGNAL(clicked()),this,SLOT(slotitalicclicked()));
 
 }
+void MainWindow::slotcolorchanged(const QColor &c)
+{
+    textEdit->setTextColor(c);
+    colorBox->setButtonIcon("../icon/font.png",c);
+}
+void MainWindow::slotfontchanged(const QFont &f)
+{
+    QTextCharFormat fmt = textEdit->textCursor().charFormat();
+    fmt.setFont(f);
+    textEdit->setCurrentCharFormat(fmt);
+}
 
-
-
+void MainWindow::slotsizechanged(const QString& s)
+{
+    textEdit->setFontPointSize(s.toInt());
+}
 /*
 void MainWindow::showMainwindow2()
 {
@@ -187,7 +313,7 @@ void MainWindow::printpreviewAction()
 }
 void MainWindow::openFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, u8"打开文件");
+    QString fileName = QFileDialog::getOpenFileName(this, u8"打开文件",NULL,tr("XML files(*xml)"));
     QFile file(fileName);
     currentFile = fileName;
     if (!file.open(QIODevice::ReadOnly | QFile::Text)) {
@@ -197,7 +323,7 @@ void MainWindow::openFile()
     setWindowTitle(fileName);
     QTextStream in(&file);
     QString text = in.readAll();
-    textEdit->setText(text);
+    textEdit->setHtml(text);
     file.close();
 }
 
@@ -206,7 +332,8 @@ void MainWindow::saveFile()
     QString fileName;
     // 若没有文件,重新创建一个
     if (currentFile.isEmpty()) {
-        fileName = QFileDialog::getSaveFileName(this, "Save");
+        fileName = QFileDialog::getSaveFileName(this, "Save",NULL,tr("XML files(*xml)"));
+        fileName+=".xml";
         currentFile = fileName;
     } else {
         fileName = currentFile;
@@ -218,14 +345,14 @@ void MainWindow::saveFile()
     }
     setWindowTitle(fileName);
     QTextStream out(&file);
-    QString text = textEdit->toPlainText();
+    QString text = textEdit->toHtml();
     out << text;
     file.close();
 }
 
 void MainWindow::saveasFile()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, u8"另存为");
+    QString fileName = QFileDialog::getSaveFileName(this, u8"另存为",NULL,tr("XML files(*xml)"));
     QFile file(fileName);
 
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -235,7 +362,7 @@ void MainWindow::saveasFile()
     currentFile = fileName;
     setWindowTitle(fileName);
     QTextStream out(&file);
-    QString text = textEdit->toPlainText();
+    QString text = textEdit->toHtml();
     out << text;
     file.close();
 }
@@ -295,10 +422,158 @@ void MainWindow::slottextchanged()
     {
         QString st(tr(u8"单词:  "));
         st += QString::number(textEdit->toPlainText().simplified().count(QLatin1Char(' '))+1);
-        st += tr(u8"字符数:  ");
+        st += tr(u8"   字符数:  ");
         st += QString::number(textEdit->toPlainText().count());
         status->setText(st);
     }
 }
+void MainWindow::slotselectionchanged()
+{
+    if(textEdit->textCursor().selectedText().isEmpty())
+    {
+        fontAct->setEnabled(false);
 
+    }
+    else
+    {
+        fontAct->setEnabled(true);
 
+    }
+}
+void MainWindow::fontAction()
+{
+    bool ok;
+    QTextCharFormat fmt= textEdit->textCursor().charFormat();
+    QFont font = QFontDialog::getFont(&ok,textEdit->textCursor().charFormat().font());
+    fmt.setFont(font);
+    textEdit->textCursor().setCharFormat(fmt);
+
+}
+void MainWindow::leftAction()
+{
+    textEdit->setAlignment(Qt::AlignLeft);
+}
+void MainWindow::centerAction()
+{
+    textEdit->setAlignment(Qt::AlignCenter);
+}
+void MainWindow::rightAction()
+{
+    textEdit->setAlignment(Qt::AlignRight);
+}
+void MainWindow::justifyAction()
+{
+    textEdit->setAlignment(Qt::AlignJustify);
+}
+void MainWindow::colorAction()
+{
+    QColor col = QColorDialog::getColor(textEdit->textColor());
+    textEdit->setTextColor(col);
+}
+void MainWindow::incindAction()
+{
+    QTextBlockFormat bf;
+    bf= textEdit->textCursor().blockFormat();
+    bf.setLeftMargin(bf.leftMargin()+40);
+    textEdit->textCursor().setBlockFormat(bf);
+}
+void MainWindow::decindAction()
+{
+    QTextBlockFormat bf;
+    bf= textEdit->textCursor().blockFormat();
+    if(bf.leftMargin()>=40)
+        bf.setLeftMargin(bf.leftMargin()-40);
+
+    textEdit->textCursor().setBlockFormat(bf);
+}
+void MainWindow::incfsizeAction()
+{
+
+   QTextCharFormat fmt = textEdit->textCursor().charFormat();
+   fmt.setFontPointSize(fmt.fontPointSize()+10);
+   textEdit->textCursor().setCharFormat(fmt);
+
+}
+void MainWindow::decfsizeAction()
+{
+    QTextCharFormat fmt = textEdit->textCursor().charFormat();
+    fmt.setFontPointSize(fmt.fontPointSize()+1);
+    textEdit->textCursor().setCharFormat(fmt);
+}
+void MainWindow::instableAction()
+{
+    AskTable x;
+    x.exec();
+    tcpserver = new QTcpServer;
+    tcpserver->listen(QHostAddress("127.0.0.1"),9988);
+    connect(tcpserver,SIGNAL(newConnection()),this,SLOT(slotNetConnection()));
+}
+void MainWindow::insruleAction()
+{
+
+}
+void MainWindow::slotNetConnection()
+{
+    while(tcpserver->hasPendingConnections())
+    {
+        //调用nextPeddingConnection去获得连接得socket
+         tcpsocket = tcpserver->nextPendingConnection();
+
+        //为新得socket提供槽函数，来接受数据
+        connect(tcpsocket,SIGNAL(readyRead()),this,SLOT(slotreadyread()));
+    }
+}
+
+void MainWindow::slotreadyread()
+{
+    while(tcpsocket->bytesAvailable()>0)
+    {
+        QByteArray ba = tcpsocket->readAll();
+        QByteArrayList bl = ba.split('\n');
+        QTextTableFormat fmt;
+        fmt.setCellPadding(10);
+        QTextTable* tt = textEdit->textCursor().insertTable(bl.begin()->toInt(),bl.back().toInt(),fmt);
+
+    }
+}
+void MainWindow::slotcursorchanged()
+{
+    fontBox->blockSignals(true);
+    sizeBox->blockSignals(true);
+    colorBox->blockSignals(true);
+    boldbutton->blockSignals(true);
+    italicbutton->blockSignals(true);
+    fontBox->setCurrentFont(textEdit->textCursor().charFormat().font());
+    sizeBox->setCurrentText(QString::number(textEdit->fontPointSize()));
+    colorBox->setButtonIcon("../icon/font.png",textEdit->textColor());
+    if(textEdit->textCursor().charFormat().fontWeight() == QFont::Bold)
+    {
+       boldbutton->setChecked(true);
+    }
+    else
+        boldbutton->setChecked(false);
+    if(textEdit->textCursor().charFormat().fontItalic()==true)
+    {
+       italicbutton->setChecked(true);
+    }
+    else
+        italicbutton->setChecked(false);
+    fontBox->blockSignals(false);
+    sizeBox->blockSignals(false);
+    colorBox->blockSignals(false);
+    boldbutton->blockSignals(false);
+    italicbutton->blockSignals(false);
+}
+void MainWindow::slotboldclicked(const bool&)
+{
+
+    QTextCharFormat f = textEdit->textCursor().charFormat();
+    f.setFontWeight(boldbutton->isChecked()?QFont::Bold:QFont::Normal);
+    textEdit->setCurrentCharFormat(f);
+}
+void MainWindow::slotitalicclicked()
+{
+    QTextCharFormat f = textEdit->textCursor().charFormat();
+    f.setFontItalic(italicbutton->isChecked()?true:false);
+    textEdit->setCurrentCharFormat(f);
+}

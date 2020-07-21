@@ -10,6 +10,7 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QFileDialog>
+#include <QFontDialog>
 #include <QMessageBox>
 #include <QTextStream>
 #include <QPrinter>
@@ -21,6 +22,19 @@
 #include <QStatusBar>
 #include <QLabel>
 #include <QString>
+#include <QTextCharFormat>
+#include <QColorDialog>
+#include <QTextFormat>
+#include <QTextTable>
+#include <QTcpServer>
+#include <AskTable.h>
+#include <QTextTableFormat>
+#include <QTextTableCell>
+#include <QComboBox>
+#include <QFontDatabase>
+#include <QFontComboBox>
+#include <QComboBox>
+#include "ColorCombox.h"
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -29,9 +43,13 @@ public:
 private:
 
     //新建
-    QMenu *fileMenu, *editMenu, *helpMenu,*viewMenu;
+    QMenu *fileMenu, *editMenu, *helpMenu,*viewMenu,*styleMenu,*paragraphMenu;
     QToolBar *fileToolBar;
     QToolBar *editToolBar;        //新建两个工具栏，用以存放四个菜单动作
+    QToolBar *styleToolBar;
+    QFontComboBox* fontBox;
+    QComboBox* sizeBox;
+    ColorCombox* colorBox;
     QStatusBar * statusbar;
     QLabel* status;
     QAction *newAct;
@@ -48,11 +66,28 @@ private:
     QAction *exitAct;
     QAction *selectallAct;
     QAction *swStatusAct;
+    QAction *fontAct;
+    QAction *colorAct;
+    QAction *incindAct;
+    QAction *decindAct;
+    QAction *leftAct;
+    QAction *centerAct;
+    QAction *rightAct;
+    QAction *justifyAct;
+    QAction *incfsizeAct;
+    QAction *decfsizeAct;
+    QAction *instableAct;
+    QAction *insruleAct;
+    QPushButton* boldbutton;
+    QPushButton* italicbutton;
     QTextEdit *textEdit;
     QLineEdit *title;
     QVBoxLayout *vboxlayout;
     QString currentFile;
     QAction* printpreviewAct;
+    QTcpServer* tcpserver;
+    QTcpSocket* tcpsocket;
+
 signals:
 private slots:
     void newFile();
@@ -70,6 +105,26 @@ private slots:
     void printrequest(QPrinter*);
     void showStatusAction();
     void slottextchanged();
+    void fontAction();
+    void slotselectionchanged();
+    void leftAction();
+    void centerAction();
+    void rightAction();
+    void justifyAction();
+    void colorAction();
+    void incindAction();
+    void decindAction();
+    void incfsizeAction();
+    void decfsizeAction();
+    void instableAction();
+    void insruleAction();
+    void slotNetConnection();
+    void slotreadyread();
+    void slotfontchanged(const QFont &);
+    void slotcursorchanged();
+    void slotsizechanged(const QString &);
+    void slotcolorchanged(const QColor&);
+    void slotboldclicked(const bool&);
+    void slotitalicclicked();
 };
-
 #endif // MAINWINDOW_H
