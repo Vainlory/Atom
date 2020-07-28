@@ -24,6 +24,7 @@
 #include <QString>
 #include <QTextCharFormat>
 #include <QColorDialog>
+#include <QToolButton>
 #include <QTextFormat>
 #include <QTextTable>
 #include <QTcpServer>
@@ -34,18 +35,23 @@
 #include <QFontDatabase>
 #include <QFontComboBox>
 #include <QComboBox>
+#include <QCheckBox>
+#include <QRadioButton>
+#include <QTime>
 #include "ColorCombox.h"
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QString nowdir,QWidget *parent = nullptr);
 private:
 
     //新建
+
     QMenu *fileMenu, *editMenu, *helpMenu,*viewMenu,*styleMenu,*paragraphMenu;
     QToolBar *fileToolBar;
-    QToolBar *editToolBar;        //新建两个工具栏，用以存放四个菜单动作
+            //新建两个工具栏，用以存放四个菜单动作
     QToolBar *styleToolBar;
     QFontComboBox* fontBox;
     QComboBox* sizeBox;
@@ -66,6 +72,8 @@ private:
     QAction *exitAct;
     QAction *selectallAct;
     QAction *swStatusAct;
+    QAction *swStyleAct;
+    QAction *swFileAct;
     QAction *fontAct;
     QAction *colorAct;
     QAction *incindAct;
@@ -77,12 +85,18 @@ private:
     QAction *incfsizeAct;
     QAction *decfsizeAct;
     QAction *instableAct;
-    QAction *insruleAct;
+    QAction *inslistAct;
     QPushButton* boldbutton;
     QPushButton* italicbutton;
+    QPushButton* underlinebutton;
+    QPushButton* overlinebutton;
+    QPushButton* highlightbutton;
+    QPushButton* alignmentbutton;
+    QMenu* alignmentmenu;
     QTextEdit *textEdit;
     QLineEdit *title;
     QVBoxLayout *vboxlayout;
+    QHBoxLayout *hboxlayout;
     QString currentFile;
     QAction* printpreviewAct;
     QTcpServer* tcpserver;
@@ -104,6 +118,8 @@ private slots:
     void printpreviewAction();
     void printrequest(QPrinter*);
     void showStatusAction();
+    void swStyleAction();
+    void swFileAction();
     void slottextchanged();
     void fontAction();
     void slotselectionchanged();
@@ -117,7 +133,7 @@ private slots:
     void incfsizeAction();
     void decfsizeAction();
     void instableAction();
-    void insruleAction();
+    void inslistAction();
     void slotNetConnection();
     void slotreadyread();
     void slotfontchanged(const QFont &);
@@ -126,5 +142,9 @@ private slots:
     void slotcolorchanged(const QColor&);
     void slotboldclicked(const bool&);
     void slotitalicclicked();
+    void slotunderlineclicked();
+    void slotoverlineclicked();
+    void slothighlightclicked();
+
 };
 #endif // MAINWINDOW_H

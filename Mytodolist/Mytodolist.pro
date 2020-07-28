@@ -7,7 +7,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp
 QT+= widgets gui printsupport network
-CONFIG +=c++11
+CONFIG += C++11
 HEADERS += \
     AskTable.h \
     ColorCombox.h \

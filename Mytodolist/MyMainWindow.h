@@ -1,4 +1,4 @@
-#ifndef MYMAINWINDOW_H
+﻿#ifndef MYMAINWINDOW_H
 #define MYMAINWINDOW_H
 
 #include <QDialog>
@@ -24,6 +24,8 @@
 #include <QBitmap>
 #include <QColor>
 #include <QMessageBox>
+#include "mainwindow.h"
+#include <QTreeWidget>
 class MyMainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -32,11 +34,17 @@ public:
     QSystemTrayIcon* _sysicon;
     QMenu* _menu1,*_menu;
     QPushButton* _add_;
+    QAction* min;
+    QAction* max;
+    QAction* Exit;
+    MainWindow* w;
     void closeEvent(QCloseEvent*);
-    void paintEvent(QPaintEvent*);
+
 signals:
+
 public slots:
     void on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reason);
+    void slotnotepad();
 };
 
 #endif // MYMAINWINDOW_H
