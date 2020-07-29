@@ -37,15 +37,16 @@
 #include <QComboBox>
 #include <QCheckBox>
 #include <QRadioButton>
-#include <QTime>
+#include <QDateTime>
 #include "ColorCombox.h"
+#include <QFile>
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    explicit MainWindow(QString nowdir,QWidget *parent = nullptr);
-private:
+    explicit MainWindow(QString path,QWidget *parent = nullptr);
+
 
     //新建
 
@@ -58,6 +59,7 @@ private:
     ColorCombox* colorBox;
     QStatusBar * statusbar;
     QLabel* status;
+    QLabel* lasttime;
     QAction *newAct;
     QAction *openAct;
     QAction *saveAct;
@@ -98,14 +100,17 @@ private:
     QVBoxLayout *vboxlayout;
     QHBoxLayout *hboxlayout;
     QString currentFile;
+    QString currentDir;
     QAction* printpreviewAct;
     QTcpServer* tcpserver;
     QTcpSocket* tcpsocket;
+    QDateTime lastedit;
 
 signals:
-private slots:
+public slots:
     void newFile();
     void openFile();
+    void openFile(QString);
     void saveFile();
     void saveasFile();
     void printFile();

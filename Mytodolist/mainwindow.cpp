@@ -1,4 +1,12 @@
-﻿#include "mainwindow.h"
+﻿/*
+* 版权声明: 暂无
+* 文件名称 : mainwindow.cpp
+* 创建者 : 徐梓凯
+* 创建日期: 2020/7
+* 文件描述: 存放项目中编辑器的类
+* 历史记录: 2020/7/29 添加时间戳功能，每次修改后状态栏中的时间将会改变，一开始创建时为创建时间，此后相关合理性再行修改
+*/
+#include "mainwindow.h"
 #include <QMenu>
 #include <QMenuBar>
 #include <QAction>
@@ -8,16 +16,20 @@
 #include <QVBoxLayout>
 #include <QCoreApplication>
 #include <QDir>
-MainWindow::MainWindow(QString nowdir,QWidget *parent): QMainWindow(parent)
+MainWindow::MainWindow(QString path,QWidget *parent): QMainWindow(parent)
 {
     MainWindow();
-    currentFile = QDir::currentPath();
-    currentFile +="/locals/"+nowdir;
+    currentFile = path;
+    qDebug() << currentFile;
+    currentDir = path.mid(0,path.lastIndexOf('/'))+'/';
+    openFile(currentFile);
 }
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    currentFile = QDir::currentPath();
-    currentFile += "/locals/Unedit/";
+    lastedit = QDateTime::currentDateTime();
+    currentDir = QDir::currentPath();
+    currentDir += "/locals/Unedit/";
+    currentFile = "";
     this->resize(1000,800);
     this->setWindowTitle("notepad");
     this->setWindowIcon(QIcon("./icon/atom_128px.ico"));        //设置应用显示图标
@@ -31,7 +43,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     textEdit->setPlaceholderText(tr(u8"开始书写、拖动文件或选择"));
     statusbar = new QStatusBar(this);
     status = new QLabel("",this);
+    lasttime = new QLabel(lastedit.toString(),this);
     statusbar->addWidget(status);
+    statusbar->addWidget(lasttime);
     title = new QLineEdit(this);
     title->setPlaceholderText(tr(u8"标题"));
     //使用layout设置内部布局
@@ -428,6 +442,7 @@ void MainWindow::openFile()
     QString fileName = QFileDialog::getOpenFileName(this, u8"打开文件",NULL,tr("XML files(*xml)"));
     QFile file(fileName);
     currentFile = fileName;
+
     if (!file.open(QIODevice::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, u8"警告", u8"无法打开文件: " + file.errorString());
         return;
@@ -438,24 +453,56 @@ void MainWindow::openFile()
     textEdit->setHtml(text);
     file.close();
 }
+void MainWindow::openFile(QString path)
+{
+    QFile file(path);
+    currentFile = path;
+    qDebug() << currentFile;
+    currentDir = path.mid(0,path.lastIndexOf('/'))+'/';
+    setWindowTitle(path);
 
+    if (!file.open(QIODevice::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(this, u8"警告", u8"无法打开文件: " + file.errorString());
+        return;
+    }
+    QTextStream in(&file);
+
+    QStringList textlist = in.readAll().split("@#4.");
+    textEdit->blockSignals(true);
+    textEdit->setHtml(textlist.at(0));
+    title->setText(textlist.at(1));
+    lastedit = QDateTime::fromString(textlist.at(2));
+    lasttime->setText(lastedit.toString());
+    textEdit->blockSignals(false);
+    file.close();
+}
 void MainWindow::saveFile()
 {
     QString fileName;
-    fileName = currentFile;
-    if(title->text().isEmpty())
-        fileName+="unamed";
-    else
-        fileName+=title->text();
-    fileName+=".xml";
-    QFile file(fileName);
-    uint count = 1;
-    while(file.exists())
+    QFile file;
+    qDebug() <<currentFile;
+    if(currentFile == "")
     {
-        QString new_fileName = fileName;
-        new_fileName.insert(fileName.lastIndexOf('.'),"("+QString::number(count)+")");
-        count++;
-        file.setFileName(new_fileName);
+        fileName = currentDir;
+        if(title->text().isEmpty())
+            fileName+="unamed";
+        else
+            fileName+=title->text();
+        fileName+=".xml";
+        file.setFileName(fileName);
+        uint count = 1;
+        while(file.exists())
+        {
+            QString new_fileName = fileName;
+            new_fileName.insert(fileName.lastIndexOf('.'),"("+QString::number(count)+")");
+            count++;
+            file.setFileName(new_fileName);
+        }
+        currentFile = file.fileName();
+    }
+    else
+    {
+        file.setFileName(currentFile);
     }
     if (!file.open(QIODevice::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, u8"警告", u8"无法打开文件: " + file.errorString());
@@ -464,6 +511,10 @@ void MainWindow::saveFile()
     setWindowTitle(file.fileName());
     QTextStream out(&file);
     QString text = textEdit->toHtml();
+    text.append("@#4.");
+    text.append(title->text());
+    text.append("@#4.");
+    text.append(lastedit.toString());
     out << text;
     file.close();
 }
@@ -481,6 +532,10 @@ void MainWindow::saveasFile()
     setWindowTitle(fileName);
     QTextStream out(&file);
     QString text = textEdit->toHtml();
+    text.append("@#4.");
+    text.append(title->text());
+    text.append("@#4.");
+    text.append(lastedit.toString());
     out << text;
     file.close();
 }
@@ -544,6 +599,8 @@ void MainWindow::slottextchanged()
         st += QString::number(textEdit->toPlainText().count());
         status->setText(st);
     }
+    lastedit = QDateTime::currentDateTime();
+    lasttime->setText(lastedit.toString());
 }
 void MainWindow::slotselectionchanged()
 {

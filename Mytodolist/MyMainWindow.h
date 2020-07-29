@@ -26,18 +26,23 @@
 #include <QMessageBox>
 #include "mainwindow.h"
 #include <QTreeWidget>
+#include <QTreeWidgetItem>
+#include <QVBoxLayout>
+#include "Filter.h"
 class MyMainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
     explicit MyMainWindow(QWidget *parent = nullptr);
     QSystemTrayIcon* _sysicon;
-    QMenu* _menu1,*_menu;
+    QMenu* right_menu,*_menu;
     QPushButton* _add_;
     QAction* min;
     QAction* max;
     QAction* Exit;
+    QAction* OpenAct;
     MainWindow* w;
+    Filter* filter;
     void closeEvent(QCloseEvent*);
 
 signals:
@@ -45,6 +50,8 @@ signals:
 public slots:
     void on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reason);
     void slotnotepad();
+    void on_pressedTreeWidgetItem(QTreeWidgetItem*, int);
+    void OpenAction();
 };
 
 #endif // MYMAINWINDOW_H
