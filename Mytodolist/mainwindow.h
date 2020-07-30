@@ -40,6 +40,7 @@
 #include <QDateTime>
 #include "ColorCombox.h"
 #include <QFile>
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

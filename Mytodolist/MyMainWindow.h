@@ -31,6 +31,7 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QVBoxLayout>
+#include <QDesktopServices>
 #include "Filter.h"
 class MyMainWindow : public QMainWindow
 {
@@ -47,6 +48,8 @@ public:
     QAction* OpenAct;
     QAction* NewAct;
     QAction* RenameAct;
+    QAction* DeleteAct;
+    QAction* OpenInUrlAct;
     MainWindow* w;
     Filter* filter;
     QString prename;
@@ -62,8 +65,10 @@ public slots:
     void OpenAction(QTreeWidgetItem*, int);
     void RenameAction();
     void NewAction();
+    void DeleteAction();
     void AddNew(QTreeWidgetItem*,int);
     void nameChanged(QTreeWidgetItem*, int);
+    void OpenInUrlAction();
 };
 
 #endif // MYMAINWINDOW_H

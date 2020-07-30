@@ -60,21 +60,30 @@ MyMainWindow::MyMainWindow(QWidget *parent) : QMainWindow(parent)
     OpenAct = new QAction();
     RenameAct = new QAction();
     NewAct = new QAction();
+    OpenInUrlAct = new QAction();
+    DeleteAct = new QAction();
 
+    DeleteAct->setText(tr(u8"删除"));
     OpenAct->setText(tr(u8"打开"));
     RenameAct->setText(tr(u8"重命名"));
     NewAct->setText(tr(u8"添加笔记"));
+    OpenInUrlAct->setText(tr(u8"在资源管理器中打开"));
 
     son_menu->addAction(OpenAct);
     son_menu->addAction(RenameAct);
+    son_menu->addAction(OpenInUrlAct);
+    son_menu->addAction(DeleteAct);
 
     parent_menu->addAction(RenameAct);
     parent_menu->addAction(NewAct);
+    parent_menu->addAction(OpenInUrlAct);
+    parent_menu->addAction(DeleteAct);
 
     connect(RenameAct,SIGNAL(triggered()),this,SLOT(RenameAction()));
     connect(OpenAct,SIGNAL(triggered()),this,SLOT(OpenAction()));
     connect(NewAct,SIGNAL(triggered()),this,SLOT(NewAction()));
-
+    connect(OpenInUrlAct,SIGNAL(triggered()),this,SLOT(OpenInUrlAction()));
+    connect(DeleteAct,SIGNAL(triggered()),this,SLOT(DeleteAction()));
 }
 void MyMainWindow::closeEvent(QCloseEvent * event)
 {
@@ -242,4 +251,31 @@ void MyMainWindow::AddNew(QTreeWidgetItem* pitem,int column)
         filter->expandAll();
         qDebug() <<"open";
     }
+}
+void MyMainWindow::OpenInUrlAction()
+{
+    if(filter->currentItem()->parent()==NULL)
+        QDesktopServices::openUrl(QUrl("file:"+filter->currentDir+filter->currentItem()->text(0)+"/"
+                                       ,QUrl::TolerantMode));
+    else
+        QDesktopServices::openUrl(QUrl("file:"+filter->currentDir+filter->currentItem()->parent()->text(0)+"/"
+                                   ,QUrl::TolerantMode));
+
+}
+void MyMainWindow::DeleteAction()
+{
+    if(filter->currentItem()->parent()==NULL)
+    {
+        QString Dir_name = filter->currentDir+filter->currentItem()->text(0);
+        QDir cur_Dir(Dir_name);
+        cur_Dir.removeRecursively();
+    }
+    else
+    {
+        QString File_name = filter->currentDir+filter->currentItem()->parent()->text(0)+"/"+
+                filter->currentItem()->text(0)+".xml";
+        qDebug() << File_name;
+        qDebug()<<QFile::remove(File_name);
+    }
+    filter->buildtree();
 }
