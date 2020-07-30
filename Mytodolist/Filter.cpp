@@ -5,7 +5,10 @@ Filter::Filter()
     this->buildtree();
     this->header()->hide();
 }
+void Filter::rebuildtree()
+{
 
+}
 void Filter::buildtree()
 {
     this->clear();
@@ -28,17 +31,19 @@ void Filter::buildtree()
 
         pitem->setData(0,Qt::DisplayRole,1);
         pitem->setText(0,cur);
+        pitem->setFlags(pitem->flags() |Qt::ItemIsEditable);
         listchild.append(pitem);
 
         for(QString notename:notelist)
         {
             QTreeWidgetItem* qitem = new QTreeWidgetItem;
             qitem->setData(0,Qt::DisplayRole,2);
+            qitem->setFlags(qitem->flags() | Qt::ItemIsEditable);
             notename.remove(".xml");
             qitem->setText(0,notename);
             pitem->addChild(qitem);
         }
     }
-
     this->insertTopLevelItems(0,listchild);
+    this->expandAll();
 }

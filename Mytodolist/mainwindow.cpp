@@ -468,6 +468,8 @@ void MainWindow::openFile(QString path)
     QTextStream in(&file);
 
     QStringList textlist = in.readAll().split("@#4.");
+    qDebug()<<textlist.at(0);
+    qDebug()<<textlist.at(1);
     textEdit->blockSignals(true);
     textEdit->setHtml(textlist.at(0));
     title->setText(textlist.at(1));

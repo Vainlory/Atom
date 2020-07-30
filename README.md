@@ -43,3 +43,8 @@ Qt环境是 Desktop Qt 5.12.9  Windows
 **2020/7/29**  *23: 00*
 
 添加了主窗口中的filter QTreeWidget 实例, 隐藏表头，添加了leaves 右键呼出菜单, override openFile函数，使得可以通过右键呼出菜单打开对应的文件夹下的文件。 重构了saveFile 函数，将title，最后修改时间等信息以"@#4."为分隔写入文件。 
+
+**2020/7/30**  *15: 21*
+
+添加了leaves地右键菜单中地重命名以及root右键菜单中的添加新笔记功能，以及leaves双击打开，root双击重命名等功能，重构了notepad的保存和打开功能，每次对于文件的修改都将会调用`Filter::buildtree()`函数` filter->clear()` 函数，并且使得默认全部展开。
+

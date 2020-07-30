@@ -2,6 +2,9 @@
 #define MYMAINWINDOW_H
 
 #include <QDialog>
+#include <QDir>
+#include <QMessageBox>
+#include <QFile>
 #include <QMainWindow>
 #include <QApplication>
 #include <QMenu>
@@ -35,23 +38,32 @@ class MyMainWindow : public QMainWindow
 public:
     explicit MyMainWindow(QWidget *parent = nullptr);
     QSystemTrayIcon* _sysicon;
-    QMenu* right_menu,*_menu;
+    QMenu* son_menu,*parent_menu,*_menu;
+    QTreeWidgetItem* new_item;
     QPushButton* _add_;
     QAction* min;
     QAction* max;
     QAction* Exit;
     QAction* OpenAct;
+    QAction* NewAct;
+    QAction* RenameAct;
     MainWindow* w;
     Filter* filter;
+    QString prename;
     void closeEvent(QCloseEvent*);
 
 signals:
-
+    void addnew(QTreeWidgetItem*,int);
 public slots:
     void on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reason);
     void slotnotepad();
     void on_pressedTreeWidgetItem(QTreeWidgetItem*, int);
     void OpenAction();
+    void OpenAction(QTreeWidgetItem*, int);
+    void RenameAction();
+    void NewAction();
+    void AddNew(QTreeWidgetItem*,int);
+    void nameChanged(QTreeWidgetItem*, int);
 };
 
 #endif // MYMAINWINDOW_H

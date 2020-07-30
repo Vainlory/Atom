@@ -44,6 +44,8 @@ MyMainWindow::MyMainWindow(QWidget *parent) : QMainWindow(parent)
     filter = new Filter;
 
     connect(filter,SIGNAL(itemPressed(QTreeWidgetItem*, int)),this,SLOT(on_pressedTreeWidgetItem(QTreeWidgetItem*, int)));
+    connect(filter,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(OpenAction(QTreeWidgetItem*,int)));
+    connect(filter,SIGNAL(itemChanged(QTreeWidgetItem*,int)),this,SLOT(nameChanged(QTreeWidgetItem*, int)));
 
     QWidget* widget = new QWidget;
     QVBoxLayout* layout = new QVBoxLayout;
@@ -52,14 +54,26 @@ MyMainWindow::MyMainWindow(QWidget *parent) : QMainWindow(parent)
     this->setCentralWidget(widget);
     centralWidget()->setLayout(layout);
 
-    right_menu = new QMenu();
+    son_menu = new QMenu();
+    parent_menu = new QMenu();
 
     OpenAct = new QAction();
+    RenameAct = new QAction();
+    NewAct = new QAction();
+
     OpenAct->setText(tr(u8"打开"));
+    RenameAct->setText(tr(u8"重命名"));
+    NewAct->setText(tr(u8"添加笔记"));
 
-    right_menu->addAction(OpenAct);
+    son_menu->addAction(OpenAct);
+    son_menu->addAction(RenameAct);
 
+    parent_menu->addAction(RenameAct);
+    parent_menu->addAction(NewAct);
+
+    connect(RenameAct,SIGNAL(triggered()),this,SLOT(RenameAction()));
     connect(OpenAct,SIGNAL(triggered()),this,SLOT(OpenAction()));
+    connect(NewAct,SIGNAL(triggered()),this,SLOT(NewAction()));
 
 }
 void MyMainWindow::closeEvent(QCloseEvent * event)
@@ -108,8 +122,9 @@ void MyMainWindow::on_pressedTreeWidgetItem(QTreeWidgetItem* which, int column)
     if(QApplication::mouseButtons() != Qt::RightButton)
         return;
     if(which->parent()==NULL)
-        return;
-    right_menu->exec(QCursor::pos());
+        parent_menu->exec(QCursor::pos());
+    else
+        son_menu->exec(QCursor::pos());
 }
 void MyMainWindow::OpenAction()
 {
@@ -120,4 +135,111 @@ void MyMainWindow::OpenAction()
     w->openFile(a);
     w->show();
     filter->buildtree();
+}
+void MyMainWindow::OpenAction(QTreeWidgetItem* which, int column)
+{
+    if(which->parent() == NULL)
+    {
+        RenameAction();
+        return;
+    }
+    QString a = filter->currentDir + which->parent()->text(0)+"/"+which->text(0)+".xml";
+
+    w = new MainWindow();
+    w->openFile(a);
+    w->show();
+    filter->buildtree();
+}
+void MyMainWindow::RenameAction()
+{
+    prename = filter->currentItem()->text(0);
+
+    filter->editItem(filter->currentItem());
+
+
+
+}
+void MyMainWindow::nameChanged(QTreeWidgetItem* which, int)
+{
+    qDebug()<<"nameChanged";
+    if(which == new_item)
+    {
+        AddNew(which,0);
+        return;
+    }
+    if(which->text(0).isEmpty())
+    {
+        QMessageBox::warning(this,u8"警告",u8"不合法文件名");
+        which->setText(0,prename);
+        return;
+    }
+    if(which->parent()==NULL)
+    {
+       QFile::rename(filter->currentDir+prename,filter->currentDir+which->text(0));
+
+    }
+    else
+    {
+        QString new_name,str;
+        str = filter->currentDir+which->parent()->text(0)+'/'+which->text(0);
+        new_name = str+".xml";
+        QFile file(new_name);
+        int count =1;
+        while(file.exists())
+        {
+           new_name = str + "("+QString::number(count)+")"+".xml";
+           file.setFileName(new_name);
+           count++;
+        }
+
+        QFile::rename(filter->currentDir+which->parent()->text(0)+'/'+prename+".xml",
+                      new_name);
+
+
+    }
+    filter->buildtree();
+    filter->expandAll();
+}
+void MyMainWindow::NewAction()
+{
+    filter->blockSignals(true);
+    QTreeWidgetItem* pitem = new QTreeWidgetItem;
+    filter->currentItem()->addChild(pitem);
+    pitem->setFlags(pitem->flags() |Qt::ItemIsEditable);
+    filter->currentItem()->setExpanded(true);
+    filter->blockSignals(false);
+    filter->editItem(pitem);
+    new_item = pitem;
+}
+void MyMainWindow::AddNew(QTreeWidgetItem* pitem,int column)
+{
+    if(pitem->text(0).isEmpty())
+    {
+        pitem->parent()->removeChild(pitem);
+    }
+    else
+    {
+        QString new_name,str;
+        str = filter->currentDir+pitem->parent()->text(0)+'/'+pitem->text(0);
+        new_name = str+".xml";
+        qDebug()<< str;
+        QFile file(new_name);
+        int count =1;
+        while(file.exists())
+        {
+            new_name = str + "(" + QString::number(count) + ")" + ".xml";
+            file.setFileName(new_name);
+            count++;
+        }
+
+        file.open(QIODevice::ReadWrite);
+        QTextStream out(&file);
+        out<<"@#4.@#4.";
+        file.close();
+        qDebug() <<"open";
+        filter->buildtree();
+        qDebug() <<"open";
+        filter->expandAll();
+        qDebug() <<"open";
+    }
 }

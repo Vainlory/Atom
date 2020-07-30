@@ -12,8 +12,10 @@ class Filter : public QTreeWidget
 public:
     Filter();
     void buildtree();
+    void rebuildtree();
     QAction* openAct;
     QString currentDir;
+signals:
 private slots:
     void openAction(QTreeWidgetItem*,int);
 };
