@@ -49,9 +49,13 @@ public:
     QAction* NewAct;
     QAction* RenameAct;
     QAction* DeleteAct;
+    QAction* CopyAct;
+    QAction* PasteAct;
+    QAction* CutAct;
     QAction* OpenInUrlAct;
     MainWindow* w;
     Filter* filter;
+    QStringList copyboard;
     QString prename;
     void closeEvent(QCloseEvent*);
 
@@ -69,6 +73,9 @@ public slots:
     void AddNew(QTreeWidgetItem*,int);
     void nameChanged(QTreeWidgetItem*, int);
     void OpenInUrlAction();
+    void CopyAction();
+    void PasteAction();
+    void CutAction();
 };
 
 #endif // MYMAINWINDOW_H

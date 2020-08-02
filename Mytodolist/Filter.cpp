@@ -46,4 +46,59 @@ void Filter::buildtree()
     }
     this->insertTopLevelItems(0,listchild);
     this->expandAll();
+    this->setDefaultDropAction(Qt::MoveAction);
+    this->setDragDropMode(QAbstractItemView::DragDrop);
+    this->setDropIndicatorShown(true);
+
+
+}
+void Filter::dropEvent(QDropEvent *event)
+{
+    QTreeWidgetItem* target;
+    if(itemAt(event->pos())==0)
+    {
+        qDebug()<<"0";
+        event->ignore();
+        return;
+    }
+    else
+        target = itemAt(event->pos());
+    QString old_name = currentDir+this->currentItem()->parent()->text(0)+"/"+
+            this->currentItem()->text(0)+".xml";
+    QString str = currentDir
+            + (target->parent()==NULL?target->text(0):target->parent()->text(0))
+            +"/"+this->currentItem()->text(0);
+    QString new_name = str+".xml";
+    if(new_name == old_name)
+    {
+        event->ignore();
+    }
+    QFile file(new_name);
+    int count =1;
+    while(file.exists())
+    {
+        new_name = str + "(" + QString::number(count) + ")" + ".xml";
+        file.setFileName(new_name);
+        count++;
+    }
+    file.setFileName(old_name);
+    file.copy(new_name);
+    file.remove();
+    event->acceptProposedAction();
+    buildtree();
+
+}
+void Filter::dragEnterEvent(QDragEnterEvent *event)
+{
+    if(this->currentItem()->parent() == NULL)
+    {
+        event->ignore();
+        qDebug() << "NUll";
+
+    }
+    else
+
+    {
+        event->accept();
+    }
 }

@@ -1,14 +1,15 @@
 ﻿#include <QApplication>
-#include "MyWidget.h"
+
 #include "MyMainWindow.h"
 #include "New_diary.h"
 #include "mainwindow.h"
 #include "AskTable.h"
 #include "Filter.h"
+#include "StickyNot.h"
 int main(int argc,char* argv[])
 {
     QApplication app(argc,argv);
-    MyMainWindow w;
+    StickyNot w;
     w.show();
     return app.exec();
 }

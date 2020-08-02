@@ -62,28 +62,51 @@ MyMainWindow::MyMainWindow(QWidget *parent) : QMainWindow(parent)
     NewAct = new QAction();
     OpenInUrlAct = new QAction();
     DeleteAct = new QAction();
+    CopyAct = new QAction();
+    PasteAct = new QAction();
+    CutAct = new QAction();
 
+    CutAct->setText(tr(u8"剪切"));
     DeleteAct->setText(tr(u8"删除"));
     OpenAct->setText(tr(u8"打开"));
     RenameAct->setText(tr(u8"重命名"));
     NewAct->setText(tr(u8"添加笔记"));
+    NewAct->setShortcut(tr(u8"Ctrl+N"));
     OpenInUrlAct->setText(tr(u8"在资源管理器中打开"));
+    CopyAct->setText(tr(u8"复制"));
+    CopyAct->setShortcut(tr(u8"Ctrl+C"));
+    PasteAct->setText(tr(u8"黏贴"));
+    PasteAct->setEnabled(false);
+    PasteAct->setShortcut(tr(u8"Ctrl+V"));
 
     son_menu->addAction(OpenAct);
+    son_menu->addAction(NewAct);
+    son_menu->addSeparator();
+    son_menu->addAction(CopyAct);
+    son_menu->addAction(PasteAct);
+    son_menu->addAction(CutAct);
     son_menu->addAction(RenameAct);
-    son_menu->addAction(OpenInUrlAct);
     son_menu->addAction(DeleteAct);
+    son_menu->addSeparator();
+    son_menu->addAction(OpenInUrlAct);
 
-    parent_menu->addAction(RenameAct);
+
     parent_menu->addAction(NewAct);
-    parent_menu->addAction(OpenInUrlAct);
+    parent_menu->addSeparator();
+    parent_menu->addAction(PasteAct);
+    parent_menu->addAction(RenameAct);
     parent_menu->addAction(DeleteAct);
+    parent_menu->addSeparator();
+    parent_menu->addAction(OpenInUrlAct);
 
     connect(RenameAct,SIGNAL(triggered()),this,SLOT(RenameAction()));
     connect(OpenAct,SIGNAL(triggered()),this,SLOT(OpenAction()));
     connect(NewAct,SIGNAL(triggered()),this,SLOT(NewAction()));
     connect(OpenInUrlAct,SIGNAL(triggered()),this,SLOT(OpenInUrlAction()));
     connect(DeleteAct,SIGNAL(triggered()),this,SLOT(DeleteAction()));
+    connect(CopyAct,SIGNAL(triggered()),this,SLOT(CopyAction()));
+    connect(PasteAct,SIGNAL(triggered()),this,SLOT(PasteAction()));
+    connect(CutAct,SIGNAL(triggered()),this,SLOT(CutAction()));
 }
 void MyMainWindow::closeEvent(QCloseEvent * event)
 {
@@ -122,6 +145,7 @@ void MyMainWindow::on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason rea
 }
 void MyMainWindow::slotnotepad()
 {
+    qDebug()<<"a";
     w = new MainWindow();
     w->show();
     filter->buildtree();
@@ -213,7 +237,10 @@ void MyMainWindow::NewAction()
 {
     filter->blockSignals(true);
     QTreeWidgetItem* pitem = new QTreeWidgetItem;
-    filter->currentItem()->addChild(pitem);
+    if(filter->currentItem()->parent()==NULL)
+        filter->currentItem()->addChild(pitem);
+    else
+        filter->currentItem()->parent()->addChild(pitem);
     pitem->setFlags(pitem->flags() |Qt::ItemIsEditable);
     filter->currentItem()->setExpanded(true);
     filter->blockSignals(false);
@@ -278,4 +305,50 @@ void MyMainWindow::DeleteAction()
         qDebug()<<QFile::remove(File_name);
     }
     filter->buildtree();
+}
+void MyMainWindow::CopyAction()
+{
+    copyboard.clear();
+    QString filename;
+    filename = filter->currentDir+filter->currentItem()->parent()->text(0)+"/"+
+            filter->currentItem()->text(0)+".xml";
+    QFile file(filename);
+    file.open(QIODevice::ReadOnly);
+
+    copyboard.push_back(filename);
+    copyboard.push_back(file.readAll());
+    qDebug() << copyboard;
+    file.close();
+    PasteAct->setEnabled(true);
+}
+void MyMainWindow::PasteAction()
+{
+    QString prename = copyboard.front();
+    QString str = filter->currentDir
+            +(filter->currentItem()->parent()==NULL?
+                                          filter->currentItem()->text(0):
+                                          filter->currentItem()->parent()->text(0))
+            +prename.mid(prename.lastIndexOf('/'),prename.lastIndexOf('.')-prename.lastIndexOf('/'))
+            ;
+    QString new_name = str+".xml";
+    qDebug() << str;
+    QFile file(new_name);
+    int count =1;
+    while(file.exists())
+    {
+        new_name = str + "(" + QString::number(count) + ")" + ".xml";
+        file.setFileName(new_name);
+        count++;
+    }
+    file.open(QIODevice::ReadWrite);
+    QTextStream out(&file);
+    out<<copyboard.back();
+    file.close();
+    filter->buildtree();
+
+}
+void MyMainWindow::CutAction()
+{
+    CopyAction();
+    DeleteAction();
 }

@@ -7,6 +7,10 @@
 #include <QDir>
 #include <QDebug>
 #include <QAction>
+#include <QDropEvent>
+#include <QDragEnterEvent>
+#include <QMimeData>
+#include <QDrag>
 class Filter : public QTreeWidget
 {
 public:
@@ -15,9 +19,13 @@ public:
     void rebuildtree();
     QAction* openAct;
     QString currentDir;
+    void dragEnterEvent(QDragEnterEvent* event);
+    void dropEvent(QDropEvent *event);
+
 signals:
 private slots:
     void openAction(QTreeWidgetItem*,int);
+
 };
 
 #endif // FILTER_H

@@ -3,8 +3,8 @@ SOURCES += \
     ColorCombox.cpp \
     Filter.cpp \
     MyMainWindow.cpp \
-    MyWidget.cpp \
     New_diary.cpp \
+    StickyNot.cpp \
     main.cpp \
     mainwindow.cpp
 QT+= widgets gui printsupport network
@@ -14,6 +14,6 @@ HEADERS += \
     ColorCombox.h \
     Filter.h \
     MyMainWindow.h \
-    MyWidget.h \
     New_diary.h \
+    StickyNot.h \
     mainwindow.h

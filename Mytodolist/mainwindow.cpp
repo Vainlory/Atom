@@ -343,6 +343,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     stickbutton->setStyleSheet("QToolButton{border:0px}");
     stickbutton->setIcon(QIcon(tr("./icon/sticky-note-line.png")));
     printbutton->setIcon(QIcon(tr("./icon/print.png")));
+    printbutton->setToolTip(tr(u8"打印"));
+    stickbutton->setToolTip(tr(u8"贴上"));
     printbutton->setFocusPolicy(Qt::NoFocus);
     stickbutton->setFocusPolicy(Qt::NoFocus);
 
