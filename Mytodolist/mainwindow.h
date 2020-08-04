@@ -40,7 +40,7 @@
 #include <QDateTime>
 #include "ColorCombox.h"
 #include <QFile>
-
+#include <StickyNote.h>
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -151,6 +151,7 @@ public slots:
     void slotunderlineclicked();
     void slotoverlineclicked();
     void slothighlightclicked();
+    void slotsticky();
 
 };
 #endif // MAINWINDOW_H

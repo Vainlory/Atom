@@ -1,6 +1,7 @@
-﻿#ifndef STICKYNOT_H
-#define STICKYNOT_H
+﻿#ifndef STICKYNOTE_H
+#define STICKYNOTE_H
 
+#include <QWidget>
 #include <QDialog>
 #include <QTextBrowser>
 #include <QVBoxLayout>
@@ -12,24 +13,32 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QFile>
 
-class StickyNot : public QWidget
+class StickyNote : public QWidget
 {
-
+    Q_OBJECT
 public:
-    StickyNot();
+    explicit StickyNote(QWidget *parent = nullptr);
+    explicit StickyNote(QString file,QWidget* parent = nullptr);
     QVBoxLayout* layout;
-    QLabel* label;
-    QTextBrowser* tbo;
+    QLabel* title;
+    QTextBrowser* content;
+
     bool has_mask;
     QPushButton* LockButton;
-    QPushButton* OnTopButton;
     QPushButton* CloseButton;
     void enterEvent(QEvent *event);
     void leaveEvent(QEvent *event);
     void timerEvent(QTimerEvent * event);
     void paintEvent(QPaintEvent *event);
     bool eventFilter(QObject*,QEvent*);
+signals:
+
+public slots:
+    void LockSlot();
+    void CloseAction();
+
 };
 
-#endif // STICKYNOT_H
+#endif // STICKYNOTE_H

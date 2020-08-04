@@ -65,6 +65,7 @@ MyMainWindow::MyMainWindow(QWidget *parent) : QMainWindow(parent)
     CopyAct = new QAction();
     PasteAct = new QAction();
     CutAct = new QAction();
+    StickyAct = new QAction();
 
     CutAct->setText(tr(u8"剪切"));
     DeleteAct->setText(tr(u8"删除"));
@@ -78,6 +79,8 @@ MyMainWindow::MyMainWindow(QWidget *parent) : QMainWindow(parent)
     PasteAct->setText(tr(u8"黏贴"));
     PasteAct->setEnabled(false);
     PasteAct->setShortcut(tr(u8"Ctrl+V"));
+    StickyAct->setText(tr(u8"设为桌面便签"));
+
 
     son_menu->addAction(OpenAct);
     son_menu->addAction(NewAct);
@@ -89,6 +92,7 @@ MyMainWindow::MyMainWindow(QWidget *parent) : QMainWindow(parent)
     son_menu->addAction(DeleteAct);
     son_menu->addSeparator();
     son_menu->addAction(OpenInUrlAct);
+    son_menu->addAction(StickyAct);
 
 
     parent_menu->addAction(NewAct);
@@ -103,10 +107,18 @@ MyMainWindow::MyMainWindow(QWidget *parent) : QMainWindow(parent)
     connect(OpenAct,SIGNAL(triggered()),this,SLOT(OpenAction()));
     connect(NewAct,SIGNAL(triggered()),this,SLOT(NewAction()));
     connect(OpenInUrlAct,SIGNAL(triggered()),this,SLOT(OpenInUrlAction()));
+    connect(StickyAct,SIGNAL(triggered()),this,SLOT(StickyAction()));
     connect(DeleteAct,SIGNAL(triggered()),this,SLOT(DeleteAction()));
     connect(CopyAct,SIGNAL(triggered()),this,SLOT(CopyAction()));
     connect(PasteAct,SIGNAL(triggered()),this,SLOT(PasteAction()));
     connect(CutAct,SIGNAL(triggered()),this,SLOT(CutAction()));
+}
+void MyMainWindow::StickyAction()
+{
+    QString x = filter->currentDir + filter->currentItem()->parent()->text(0)+"/"+
+            filter->currentItem()->text(0)+".xml";
+    StickyNote* a = new StickyNote(x,this);
+    a->show();
 }
 void MyMainWindow::closeEvent(QCloseEvent * event)
 {

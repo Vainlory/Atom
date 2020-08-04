@@ -46,7 +46,7 @@ Qt环境是 Desktop Qt 5.12.9  Windows
 
 **2020/7/30**  *15: 21*
 
-添加了leaves地右键菜单中地重命名以及root右键菜单中的添加新笔记功能，以及leaves双击打开，root双击重命名等功能，重构了notepad的保存和打开功能，每次对于文件的修改都将会调用`Filter::buildtree()`函数` filter->clear()` 函数，并且使得默认全部展开。
+添加了leaves地右键菜单中地重命名以及root右键菜单中的添加新笔记功能，以及leaves双击打开，root双击重命名等功能，重构了notepad的保存和打开功能，每次对于文件的修改都将会调用`Filter::buildtree()`函数` filter->clear()` 函数，并且使得默认全部展开
 
 **2020/7/30**  *23: 21*
 
@@ -56,3 +56,6 @@ Qt环境是 Desktop Qt 5.12.9  Windows
 
 完成filter中地拖拽移动功能，以及对于笔记复制黏贴剪切地功能，部分重构了之前地函数，新建了stickynot类用来作为贴上桌面的窗口，sticknot无边框，背景透明，通过`StickyNot::eventfilter()` 对于消息的过滤筛选来实现对于无边框窗口的移动操作。详情请参照study-note.md
 
+**2020/8/4** *15: 58*
+
+完成stickynote大致功能，stickynote由title 一个qlabel 和 content 一个qtextbrowser 显示相关文字，在原有窗口上添加上相关功能

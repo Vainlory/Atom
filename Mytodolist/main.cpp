@@ -5,11 +5,11 @@
 #include "mainwindow.h"
 #include "AskTable.h"
 #include "Filter.h"
-#include "StickyNot.h"
+#include "StickyNote.h"
 int main(int argc,char* argv[])
 {
     QApplication app(argc,argv);
-    StickyNot w;
+    MyMainWindow w;
     w.show();
     return app.exec();
 }

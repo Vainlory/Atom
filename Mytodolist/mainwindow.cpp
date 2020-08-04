@@ -359,7 +359,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     this->setCentralWidget(widget);
     centralWidget()->setLayout(vboxlayout);
 
+    connect(stickbutton,SIGNAL(clicked()),this,SLOT(slotsticky()));
     connect(printbutton,SIGNAL(clicked()),this,SLOT(printFile()));
+
+}
+void MainWindow::slotsticky()
+{
+    saveFile();
+    StickyNote* s = new StickyNote(currentFile,this);
+    s->show();
 
 }
 void MainWindow::slotcolorchanged(const QColor &c)

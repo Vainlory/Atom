@@ -33,6 +33,7 @@
 #include <QVBoxLayout>
 #include <QDesktopServices>
 #include "Filter.h"
+#include "StickyNote.h"
 class MyMainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -53,6 +54,7 @@ public:
     QAction* PasteAct;
     QAction* CutAct;
     QAction* OpenInUrlAct;
+    QAction* StickyAct;
     MainWindow* w;
     Filter* filter;
     QStringList copyboard;
@@ -76,6 +78,7 @@ public slots:
     void CopyAction();
     void PasteAction();
     void CutAction();
+    void StickyAction();
 };
 
 #endif // MYMAINWINDOW_H

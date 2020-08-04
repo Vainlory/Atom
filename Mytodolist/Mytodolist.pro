@@ -4,7 +4,7 @@ SOURCES += \
     Filter.cpp \
     MyMainWindow.cpp \
     New_diary.cpp \
-    StickyNot.cpp \
+    StickyNote.cpp \
     main.cpp \
     mainwindow.cpp
 QT+= widgets gui printsupport network
@@ -15,5 +15,5 @@ HEADERS += \
     Filter.h \
     MyMainWindow.h \
     New_diary.h \
-    StickyNot.h \
+    StickyNote.h \
     mainwindow.h
