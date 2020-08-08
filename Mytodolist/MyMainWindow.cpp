@@ -126,7 +126,7 @@ void MyMainWindow::closeEvent(QCloseEvent * event)
     QAction* act = qobject_cast<QAction*>(obj);
     if(act)
        {
-            _sysicon->hide();
+            _sysicon->setVisible(false);
            event->accept();
        }
        else if(this->isVisible())
